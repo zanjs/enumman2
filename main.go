@@ -70,13 +70,13 @@ func (v {{$type}}) String() string {
 {{$ordinalMap := concat $nameLower "Ordinal" "Map"}}
 // Forward ordinal lookup
 var {{$ordinalMap}} = map[{{$type}}]int{
-{{range $index, $element := .Values}}	{{valueName $element}}:	{{.Keys[$index]}}, 
+{{range $index, $element := .Values}}	{{valueName $element}}:	{{.Keys}}[$index], 
 {{end}}}
 
 {{$reverseOrdinalMap := concat $nameLower "Reverse" "Ordinal" "Map"}}
 // Reverse ordinal lookup
 var {{$reverseOrdinalMap}} = map[int]{{$type}}{
-{{range $index, $element := .Values}}	{{.Keys[$index]}}:	{{valueName $element}}, 
+{{range $index, $element := .Values}}	{{ .Keys}}[$index]:	{{valueName $element}}, 
 {{end}}}
 
 {{$fromOrdinal := concat $nameLower "FromOrdinal"}}
