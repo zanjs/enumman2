@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"strconv"
 	"strings"
 	"text/tabwriter"
 	"text/template"
@@ -70,13 +71,16 @@ func (v {{$type}}) String() string {
 {{$ordinalMap := concat $nameLower "Ordinal" "Map"}}
 // Forward ordinal lookup
 var {{$ordinalMap}} = map[{{$type}}]int{
-{{range $index, $element := .Values}}	{{valueName $element}}:	{{.Keys}}[$index], 
+{{range $index, $element := .Values}}	
+{{valueName $element}}:	{{index $.Keys $index}}, 
 {{end}}}
+
+
 
 {{$reverseOrdinalMap := concat $nameLower "Reverse" "Ordinal" "Map"}}
 // Reverse ordinal lookup
 var {{$reverseOrdinalMap}} = map[int]{{$type}}{
-{{range $index, $element := .Values}}	{{ .Keys}}[$index]:	{{valueName $element}}, 
+{{range $index, $element := .Values}}	{{$index}}:	{{valueName $element}}, 
 {{end}}}
 
 {{$fromOrdinal := concat $nameLower "FromOrdinal"}}
@@ -200,23 +204,44 @@ func dieOnErr(err error) {
 	}
 }
 
+// StringToInt 字符串转int
+func StringToInt(str string) (int, error) {
+	if str == "" {
+		return 0, nil
+	}
+	valInt, err := strconv.Atoi(str)
+	if err != nil {
+		return 0, err
+	}
+
+	return valInt, nil
+}
+
 func main() {
 	flag.Var(variants, "variant", "VariantName:Value1,Value2,...,VariantN")
 	flag.Parse()
+
+	n := strings.Split(*keys, ",")
+
+	var b []int
+	for iter := 0; iter < len(n); iter++ {
+		int1, _ := StringToInt(n[iter])
+		b = append(b, int(int1))
+	}
 
 	data := struct {
 		Package  string
 		Name     string
 		Output   string
 		Values   []string
-		Keys     []string
+		Keys     []int
 		Variants []Variant
 	}{
 		Package:  *packageName,
 		Name:     *name,
 		Output:   *output,
 		Values:   strings.Split(*values, ","),
-		Keys:     strings.Split(*keys, ","),
+		Keys:     b,
 		Variants: *variants,
 	}
 
