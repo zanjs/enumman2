@@ -31,7 +31,7 @@ type {{$type}} int
 // Private constants
 const (
 	_	{{$type}}	=	iota
-{{range .Values}}	{{valueName .}}
+	{{range $index, $element := .Values}} {{valueName .}} =	{{index $.Keys $index}}
 {{end}})
 
 {{$stringMap := concat $nameLower "String" "Map"}}
@@ -150,6 +150,9 @@ type {{$struct}} struct {
 
 	Values	[]{{$type}}
 
+	{{range .Variants}}
+	{{capUpper .Name}}  map[{{$type}}]string {{end}}
+
 {{range .Values}}	{{capUpper .}}	{{$type}}
 {{end}}
 
@@ -171,6 +174,10 @@ var {{$structObj}} = {{$struct}}{
 	Count: {{$count}},
 
 	Values:	{{$values}},
+
+	{{range .Variants}}
+	{{capUpper .Name}}:  {{variantMapName .}},{{end}}
+	
 
 {{range .Values}}	{{capUpper .}}:	{{valueName .}},
 {{end}}	
@@ -270,6 +277,9 @@ func main() {
 		},
 		"variantMapName": func(v Variant) string {
 			return fmt.Sprintf("%s%sMap", capLower(data.Name), capUpper(v.Name))
+		},
+		"variantMapNameUp": func(v Variant) string {
+			return fmt.Sprintf("%s%sMap", capUpper(data.Name), capUpper(v.Name))
 		},
 		"variantReverseMapName": func(v Variant) string {
 			return fmt.Sprintf("%sReverse%sMap", capLower(data.Name), capUpper(v.Name))
